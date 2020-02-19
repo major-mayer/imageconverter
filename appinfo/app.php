@@ -1,4 +1,4 @@
 <?php
 
-$app = new \OCA\Test\AppInfo\Application();
+$app = new \OCA\ImageConverter\AppInfo\Application();
 $app->registerListeners();

@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>test</id>
+    <id>imageconverter</id>
     <name>HEIC/HEIF Image Converter</name>
     <summary>Converts your HEIC/ HEIF images to JPEG </summary>
-    <description><![CDATA[tbd]]></description>
+    <description><![CDATA[Very simple app to convert your HEIC/ HEIF files to JPEG using ImagickMagick and the PHP Imagick extension. 
+        
+        Check Github for more details.]]></description>
     <version>0.0.1</version>
     <licence>agpl</licence>
     <author mail="major@abc.com" homepage="http://example.com">laurenz</author>
-    <namespace>Test</namespace>
+    <namespace>ImageConverter</namespace>
     <category>multimedia</category>
     <bugs>http://example.com</bugs>
     <dependencies>
+        <lib>imagick</lib>
         <nextcloud min-version="18" max-version="18"/>
     </dependencies>
 </info>

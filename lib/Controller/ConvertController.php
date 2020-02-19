@@ -1,5 +1,5 @@
 <?php
-namespace OCA\Test\Controller;
+namespace OCA\ImageConverter\Controller;
 
 use OC\Core\Command\Broadcast\Test;
 use OCP\IRequest;
@@ -14,7 +14,7 @@ class ConvertController extends Controller {
 	private $config;
 	private $storage;
 
-	public function __construct($AppName, IRequest $request, $UserId, IConfig $config, \OCA\Test\Storage\ConvertStorage $ConvertStorage){
+	public function __construct($AppName, IRequest $request, $UserId, IConfig $config, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage){
 		parent::__construct($AppName, $request);
 		$this->userId = $UserId;
 		$this->config = $config;
@@ -28,20 +28,28 @@ class ConvertController extends Controller {
 			$dir = "";
 		}
 
-		$fileLocation = $this->config->getSystemValue('datadirectory', '').'/'. $this->userId.'/files'.$dir.'/'.$filename;
+		$completeDir = $this->config->getSystemValue('datadirectory', '').'/'. $this->userId.'/files'.$dir.'/';
+		
+		// Check if file is .heic or .heif and rename correctly 
+		if (stripos($filename, ".heic") === false) {
+			$newFilename = str_ireplace(".heif", ".jpg" , $filename );
+		}
+		else {
+			$newFilename = str_ireplace(".heic", ".jpg" , $filename );
+		}
 
 		// Check if the file exists
-		if (file_exists($fileLocation)) {
+		if (file_exists($completeDir.$filename)) {
 			//Do the actual conversion
-			$image = new \Imagick($fileLocation);
+			$image = new \Imagick($completeDir.$filename);
 			$image->setImageFormat("jpeg");
-			$image->writeImage($fileLocation.".jpg");
+			$image->writeImage($completeDir.$newFilename);
 
 			//nextcloud needs to get notified about the newly created file
-			$this->storage->enableFile($dir.'/'.$filename.".jpg");
+			$this->storage->enableFile($dir.'/'.$newFilename);
 
 
-			return new JSONResponse(["result" => " File was converted sucessfully at :". $dir.'/'.$filename.".jpg"]);
+			return new JSONResponse(["result" => " File was converted sucessfully at :". $dir.'/'.$newFilename]);
 		}
 		else {
 			return new JSONResponse( ["error" => "file does not exist!"], Http::STATUS_NOT_FOUND);

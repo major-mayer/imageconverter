@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\Test\Tests\Unit\Controller;
+namespace OCA\ImageConverter\Tests\Unit\Controller;
 
 use PHPUnit_Framework_TestCase;
 
 use OCP\AppFramework\Http\TemplateResponse;
 
-use OCA\Test\Controller\PageController;
+use OCA\ImageConverter\Controller\PageController;
 
 
 class PageControllerTest extends PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 		$request = $this->getMockBuilder('OCP\IRequest')->getMock();
 
 		$this->controller = new PageController(
-			'test', $request, $this->userId
+			'imageconverter', $request, $this->userId
 		);
 	}
 

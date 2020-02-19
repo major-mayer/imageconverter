@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Test\Storage;
+namespace OCA\ImageConverter\Storage;
 
 use Exception;
 use OCA\WorkflowEngine\Check\FileName;
@@ -42,7 +42,4 @@ class ConvertStorage
         return $file;
     }
 
-    public function test() {
-        var_dump(get_class($this->storage));
-    }
 }

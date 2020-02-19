@@ -1,9 +1,9 @@
 // example for calling the PUT /notes/1 URL
-var baseUrl = OC.generateUrl('/apps/test');
+var baseUrl = OC.generateUrl('/apps/imageconverter');
 
 OCA.Files.fileActions.registerAction({
     name: 'convertImage',
-    displayName: 'Convert this Image to JPEG',
+    displayName: 'Convert this image to JPEG',
     mime: "image/heic",
     permissions: OC.PERMISSION_UPDATE,
     iconClass: 'icon-picture',
@@ -13,7 +13,7 @@ OCA.Files.fileActions.registerAction({
 
 OCA.Files.fileActions.registerAction({
     name: 'convertImage',
-    displayName: 'Convert this Image to JPEG',
+    displayName: 'Convert this image to JPEG',
     mime: "image/heif",
     permissions: OC.PERMISSION_UPDATE,
     iconClass: 'icon-picture',

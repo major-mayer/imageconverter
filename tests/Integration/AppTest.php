@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\Test\Tests\Integration\Controller;
+namespace OCA\ImageConverter\Tests\Integration\Controller;
 
 use OCP\AppFramework\App;
 use Test\TestCase;
@@ -17,13 +17,13 @@ class AppTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $app = new App('test');
+        $app = new App('imageconverter');
         $this->container = $app->getContainer();
     }
 
     public function testAppInstalled() {
         $appManager = $this->container->query('OCP\App\IAppManager');
-        $this->assertTrue($appManager->isInstalled('test'));
+        $this->assertTrue($appManager->isInstalled('imageconverter'));
     }
 
 }

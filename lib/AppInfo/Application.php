@@ -1,15 +1,15 @@
 <?php
-namespace OCA\Test\AppInfo;
+namespace OCA\ImageConverter\AppInfo;
 
 use OCP\AppFramework\App;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Util;
-use OCA\Test\Storage\ConvertStorage;
+use OCA\ImageConverter\Storage\ConvertStorage;
 
 class Application extends App {
 
     public function __construct() {
-        parent::__construct('test');
+        parent::__construct('imageconverter');
 
         $container = $this->getContainer();
 
@@ -31,8 +31,8 @@ class Application extends App {
         /* @var IEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->query(IEventDispatcher::class);
         $dispatcher->addListener( 'OCA\Files::loadAdditionalScripts', function() {
-            Util::addScript('test', 'script' );
-            Util::addStyle('test', 'style' );
+            Util::addScript('imageconverter', 'script' );
+            Util::addStyle('imageconverter', 'style' );
         });
     }
 

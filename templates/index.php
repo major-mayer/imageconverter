@@ -1,7 +1,7 @@
 <?php
 # inkludiert js und css
-script('test', 'script');
-style('test', 'style');
+script('imageconverter', 'script');
+style('imageconverter', 'style');
 ?>
 
 <div id="app">
