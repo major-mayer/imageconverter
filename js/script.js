@@ -119,7 +119,7 @@ function startMultiConversion() {
             url: baseUrl + '/convert',
             type: 'POST',
             contentType: 'application/json',
-            data:"abcsoos" //JSON.stringify(data)
+            data: JSON.stringify(data)
         });
 
         ajaxArray.push(ajaxRequest);
