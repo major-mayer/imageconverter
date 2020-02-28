@@ -12,5 +12,4 @@ The official [Docker Nextcloud image](https://github.com/nextcloud/docker) alrea
 - Testing
 - Option to choose JPEG quality
 - Option to convert to other formats than JPEG
-- Convert multiple images at once
 - ...
