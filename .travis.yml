@@ -7,7 +7,7 @@ php:
     - 7.1
 env:
     global:
-        - CORE_BRANCH=stable15
+        - CORE_BRANCH=stable18
     matrix:
         - DB=pgsql
 
