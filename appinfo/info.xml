@@ -7,7 +7,7 @@
     <description><![CDATA[Very simple app to convert your HEIC/ HEIF files to JPEG using ImagickMagick and the PHP Imagick extension. 
         Needs imagemagick with HEIC support installed and the PHP bindings (Imagick extension) enabled.
         Check Github for more details.]]></description>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <licence>agpl</licence>
     <author mail="laulaufun@googlemail.com" homepage="http://example.com">major-mayer</author>
     <namespace>ImageConverter</namespace>

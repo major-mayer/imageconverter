@@ -22,6 +22,9 @@ class ConvertController extends Controller {
 
 	}
 
+    /**
+     * @NoAdminRequired
+     */
 	public function convertImage( $dir, $filename) {
 		// Check if directory is the root dir, to not get double slashes
 		if ($dir ===  "/") {
@@ -52,7 +55,7 @@ class ConvertController extends Controller {
 			return new JSONResponse(["result" => " File was converted sucessfully at :". $dir.'/'.$newFilename]);
 		}
 		else {
-			return new JSONResponse( ["error" => "file does not exist!"], Http::STATUS_NOT_FOUND);
+			return new JSONResponse( ["error" => "file does not exist at :". $dir.'/'.$newFilename], Http::STATUS_NOT_FOUND);
 		}
 		
 		
