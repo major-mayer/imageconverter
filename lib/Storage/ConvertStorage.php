@@ -17,29 +17,54 @@ class ConvertStorage
     }
 
     /**
-     * Executes a get method for the new file, so that nextcloud recognizes it
+     * Returns the content of a file by it's id
      *
-     * @param [type] $filename
-     * @return void
+     * @param int $id
+     * @return resource
      */
-    public function enableFile($filename)
-    {
-        // check if file exists 
-        try {
-            $file = $this->storage->get($filename);
-        } catch (\OCP\Files\NotFoundException $e) {
-            throw $e;
+    public function getFileContentById ($id) {
+        $files = $this->storage->getById($id);
+        
+        // A file can be multiple times shared
+        if (count($files) > 1) {
+            throw new Exception("more than one times shared!");
+        }
+        $file = $files[0];
+        
+        // return the file content as resource
+        if($file instanceof \OCP\Files\File) {
+            
+            /**@var \OCP\Files\File $file */
+            $fileContent = $file->fopen("r");
+
+            return $fileContent;
+
+        } else {
+            throw new Exception('Can not read from folder');
         }
     }
-    
-    // Doesn't work
-    public function createNewFile($filename) {
-        var_dump($this->storage);
 
-        $this->storage->touch($filename);
-        $file = $this->storage->get($filename);
-        var_dump(get_class($file));
-        return $file;
+    /**
+     * Returns the handle for a new file that shall be created at the same location as the old one
+     *
+     * @param int $originalImageid
+     * @param string $newName
+     * @param string $newContent
+     * @return resource
+     */
+    public function saveNewImage($originalImageid, $newName, $newContent) {
+        $parentFolder = $this->storage->getById($originalImageid)[0]->getParent();
+        
+        //Check if the path is writeable and a folder
+        if ($parentFolder->isCreatable() && $parentFolder instanceof \OCP\Files\Folder) {
+            /**@var \OCP\Files\Folder $path */
+            $newFile = $parentFolder->newFile($newName);
+            $result = $newFile->putContent($newContent);
+            return $result;
+        }
+        else {
+            throw new Exception ("Path is not writeable");
+        }
     }
 
 }

@@ -51,7 +51,6 @@ var timer = setInterval(() => {
 
 
 function startSingleConversion(filename, context) {
-
     // Prepare everything for request to backend
     console.log("Started converting " + context.dir + filename);
 
@@ -60,7 +59,7 @@ function startSingleConversion(filename, context) {
 
     let data = {
         filename: filename,
-        dir: context.dir,
+        fileId: context.fileInfoModel.id,
     }
 
     $.ajax({
@@ -74,7 +73,7 @@ function startSingleConversion(filename, context) {
             // handle success
             context.fileList.showFileBusyState(fileElement, false);
             context.fileList.reload();
-            OC.dialogs.alert("Image has been successfully converted", "Conversion successfull!");
+            OC.dialogs.alert("Image "+ filename + " has been successfully converted", "Conversion successfull");
             console.log("Finished converting: " + response);
 
         })
@@ -82,8 +81,9 @@ function startSingleConversion(filename, context) {
         .fail(function (response, code) {
             // handle failure
             context.fileList.showFileBusyState(fileElement, false);
-            OC.dialogs.alert("An Error occured!");
-            console.log("Backend error occured:" + "Conversion failed!");
+            OC.dialogs.alert("An Error occured!", "Error");
+            console.error("Backend error occured: Error "+ code);
+            console.error(response);
         });
 }
 
@@ -107,12 +107,13 @@ function startMultiConversion() {
     // Generate requests for all images
     for (let file of files) {
         let fileElement = this.FileList.findFileEl(file.name);
+
         this.FileList.showFileBusyState(fileElement, true);
 
 
         let data = {
             filename: file.name,
-            dir: currentDir,
+            fileId: file.id,
         };
 
         var ajaxRequest = $.ajax({
@@ -130,7 +131,7 @@ function startMultiConversion() {
         // Success
         () => {
             this.FileList.reload();
-            OC.dialogs.alert("Images have been successfully converted", "Conversion successfull!");
+            OC.dialogs.alert("Images have been successfully converted", "Conversion successfull");
         },
         // Error 
         (reason) => {

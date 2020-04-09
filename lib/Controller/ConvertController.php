@@ -22,17 +22,20 @@ class ConvertController extends Controller {
 
 	}
 
-    /**
-     * @NoAdminRequired
-     */
-	public function convertImage( $dir, $filename) {
-		// Check if directory is the root dir, to not get double slashes
-		if ($dir ===  "/") {
-			$dir = "";
-		}
+	/**
+	 * Endpoint to convert the HEIC/HEIF images
+	 *
+	 * @param string $filename
+	 * @param int $fileId
+	 * @param integer $compressionQuality
+	 * @return void
+	 * @NoAdminRequired
+	 */
+	public function convertImage( $filename, $fileId, $compressionQuality = 100) {
 
-		$completeDir = $this->config->getSystemValue('datadirectory', '').'/'. $this->userId.'/files'.$dir.'/';
-		
+		//unused
+		//$completeDir = $this->config->getSystemValue('datadirectory', '').'/'. $this->userId.'/files/';
+
 		// Check if file is .heic or .heif and rename correctly 
 		if (stripos($filename, ".heic") === false) {
 			$newFilename = str_ireplace(".heif", ".jpg" , $filename );
@@ -41,23 +44,27 @@ class ConvertController extends Controller {
 			$newFilename = str_ireplace(".heic", ".jpg" , $filename );
 		}
 
-		// Check if the file exists
-		if (file_exists($completeDir.$filename)) {
-			//Do the actual conversion
-			$image = new \Imagick($completeDir.$filename);
+		// Get the content of the original image and the handle for the converted file
+		$originalFileContent = $this->storage->getFileContentById($fileId);
+		
+
+		// Do the actual conversion
+		try {
+			$image = new \Imagick();
+			$image->readImageFile($originalFileContent);
 			$image->setImageFormat("jpeg");
-			$image->writeImage($completeDir.$newFilename);
-
-			//nextcloud needs to get notified about the newly created file
-			$this->storage->enableFile($dir.'/'.$newFilename);
-
-
-			return new JSONResponse(["result" => " File was converted sucessfully at :". $dir.'/'.$newFilename]);
-		}
-		else {
-			return new JSONResponse( ["error" => "file does not exist at :". $dir.'/'.$newFilename], Http::STATUS_NOT_FOUND);
+			$image->setImageCompressionQuality($compressionQuality);
+			$blob =  $image->getImageBlob();
+	
+			$this->storage->saveNewImage($fileId, $newFilename, $blob);
+		} 
+		catch (\ImagickException $ex) {
+			/**@var \Exception $ex */
+			return new JSONResponse(["error" => "Imagick failed to convert the images, check if you fulfill all requirements." , "details" => $ex->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 		
+
+		return new JSONResponse(["result" => "Image $filename was converted sucessfully!"]);
 		
 	}
 
