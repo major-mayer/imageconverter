@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
-<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>imageconverter</id>
     <name>HEIC/HEIF Image Converter</name>
     <summary>Converts your HEIC/ HEIF images to JPEG </summary>
-    <description><![CDATA[Very simple app to convert your HEIC/ HEIF files to JPEG using ImagickMagick and the PHP Imagick extension. 
+    <description>
+        <![CDATA[Very simple app to convert your HEIC/ HEIF files to JPEG using ImagickMagick and the PHP Imagick extension. 
         Needs imagemagick with HEIC support installed and the PHP bindings (Imagick extension) enabled.
-        Check Github for more details.]]></description>
-    <version>1.2.1</version>
+        Check Github for more details.]]>
+    </description>
+    <version>1.3.0</version>
     <licence>agpl</licence>
     <author mail="laulaufun@googlemail.com" homepage="http://example.com">major-mayer</author>
     <namespace>ImageConverter</namespace>
@@ -17,6 +18,6 @@
     <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenrecord.gif</screenshot>
     <dependencies>
         <lib>imagick</lib>
-        <nextcloud min-version="16" max-version="20"/>
+        <nextcloud min-version="20" max-version="21" />
     </dependencies>
 </info>
