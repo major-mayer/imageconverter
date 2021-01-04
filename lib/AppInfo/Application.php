@@ -31,10 +31,6 @@ class Application extends App implements IBootstrap
         $context->registerService('RootStorage', function ($c) {
             return $c->query('ServerContainer')->getUserFolder();
         });
-
-
-        // Register the composer autoloader for packages shipped by this app, if applicable
-        include_once __DIR__ . '/../../vendor/autoload.php';
     }
 
     public function boot(IBootContext $context): void
