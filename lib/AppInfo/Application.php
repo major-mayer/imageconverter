@@ -39,6 +39,7 @@ class Application extends App implements IBootstrap
 
         /** @var IEventDispatcher $dispatcher */
         $dispatcher = $context->getAppContainer()->get(IEventDispatcher::class);
+        // TODO this creates some deprecation warnings!
         $dispatcher->addListener('OCA\Files::loadAdditionalScripts', function () {
             Util::addScript('imageconverter', 'imageConverterScript');
         });
