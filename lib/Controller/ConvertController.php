@@ -8,18 +8,20 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
+use Psr\Log\LoggerInterface;
 
 class ConvertController extends Controller {
 	private $userId;
 	private $config;
 	private $storage;
+    private $logger;
 
-	public function __construct($AppName, IRequest $request, $UserId, IConfig $config, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage){
+	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, $UserId, IConfig $config, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage){
 		parent::__construct($AppName, $request);
 		$this->userId = $UserId;
 		$this->config = $config;
 		$this->storage = $ConvertStorage;
-
+		$this->logger = $logger;
 	}
 
 	/**
@@ -60,7 +62,9 @@ class ConvertController extends Controller {
 		} 
 		catch (\ImagickException $ex) {
 			/**@var \Exception $ex */
+			$this->logger->error("Imagick failed to convert the images: " . $ex->getMessage());
 			return new JSONResponse(["error" => "Imagick failed to convert the images, check if you fulfill all requirements." , "details" => $ex->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
+
 		}
 		
 

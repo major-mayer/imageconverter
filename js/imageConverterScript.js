@@ -73,7 +73,8 @@ async function startSingleConversion(filename, context) {
         });
 
         if(!response.ok) {
-            throw new Error("Backend returned wrong statuscode!")
+            const backendError  = await response.text();
+            throw new Error("Backend returned wrong statuscode! Details : " + backendError)
         }
 
         let json = await response.json();
@@ -81,7 +82,7 @@ async function startSingleConversion(filename, context) {
         // handle success
         context.fileList.showFileBusyState(fileElement, false);
         context.fileList.reload();
-        OC.dialogs.alert("Image "+ filename + " has been successfully converted", "Conversion successfull");
+        OC.dialogs.alert("Image "+ filename + " has been successfully converted", "Conversion successful");
         console.log("Finished converting: " + json.result);
 
     }
@@ -89,7 +90,7 @@ async function startSingleConversion(filename, context) {
         // handle failure
         context.fileList.showFileBusyState(fileElement, false);
         OC.dialogs.alert("An Error occured while converting the image!", "Error");
-        console.error("Backend error occured: Error "+ ex);
+        console.error("ImageConverter Error: "+ ex);
     }
 }
 
@@ -142,23 +143,24 @@ async function startMultiConversion() {
         this.FileList.reload();
 
         // Check if a statuscode of one of the responses is incorrect 
-        responses.forEach((response) => {
-            if (!response.ok) {
-                throw {
-                    message : "Backend returned wrong statuscode!",
-                    code : response.status, 
-                    response: response.text()   // Will return a pending promise, but meh ...
+        responses.forEach(async (response) => {
+            try {
+                if (!response.ok) {
+                    const backendError  = await response.text();
+                    throw new Error("Backend returned wrong statuscode! Details : " +backendError)
                 }
+            }
+            catch (ex) {
+                OC.dialogs.alert("An Error occured while converting the images!", "Error");
+                console.error("ImageConverter Error: "+ ex);
+                return;
             }
         })
 
-        OC.dialogs.alert("Images have been successfully converted", "Conversion successfull");
-
-
+        OC.dialogs.alert("Images have been successfully converted", "Conversion successful");
     } catch (ex) {
         OC.dialogs.alert("An Error occured while converting the images!", "Error");
-        console.error("Backend error occured");
-        console.error(ex);
+        console.error("ImageConverter Error: "+ ex);
     }
 
 }
