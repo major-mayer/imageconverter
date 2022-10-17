@@ -34,6 +34,10 @@ First get an account for the [App Store](http://apps.nextcloud.com/) then run:
 
 The archive is located in build/artifacts/appstore and can then be uploaded to the App Store.
 
+Generate the signature by executing:
+```
+openssl dgst -sha512 -sign ~/Nextcloud/Development/Nextcloud_Cert/imageconverter.key build/artifacts/appstore/imageconverter.tar.gz | openssl base64
+``` 
 ## Running tests
 You can use the provided Makefile to run all tests by using:
 
