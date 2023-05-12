@@ -32,11 +32,12 @@ OCA.Files.fileActions.registerAction({
 var timer = setInterval(() => {
     // check if fileList has already loaded
     if (OCA.Files.App.fileList != null) {
-        OCA.Files.App.fileList.multiSelectMenuItems.push({
+        OCA.Files.App.fileList.registerMultiSelectFileAction({
             action: startMultiConversion,
             displayName: "Convert selection to JPEG ",
             iconClass: 'icon-picture',
-            name: 'convertImages'
+            name: 'convertImages',
+            mime: "image/heif",
         });
 
         OCA.Files.App.fileList.fileMultiSelectMenu.render(OCA.Files.App.fileList.multiSelectMenuItems)
