@@ -1,9 +1,7 @@
 <?php
 namespace OCA\ImageConverter\Controller;
 
-use OC\Core\Command\Broadcast\Test;
 use OCP\IRequest;
-use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
