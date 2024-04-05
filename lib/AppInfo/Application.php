@@ -2,6 +2,8 @@
 
 namespace OCA\ImageConverter\AppInfo;
 
+use OCA\Files\Event\LoadAdditionalScriptsEvent;
+use OCA\ImageConverter\Listener\LoadAdditionalListener;
 use OCP\Util;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -14,11 +16,13 @@ use OCA\ImageConverter\Storage\ConvertStorage;
 
 class Application extends App implements IBootstrap
 {
+    public const APP_ID = 'imageconverter';
 
-    public function __construct()
+    public function __construct(array $urlParams = [])
     {
-        parent::__construct("imageconverter");
+        parent::__construct(self::APP_ID, $urlParams);
     }
+
 
     public function register(IRegistrationContext $context): void
     {
@@ -31,17 +35,7 @@ class Application extends App implements IBootstrap
         $context->registerService('RootStorage', function ($c) {
             return $c->query('ServerContainer')->getUserFolder();
         });
-    }
 
-    public function boot(IBootContext $context): void
-    {
-        // ... boot logic goes here ...
-
-        /** @var IEventDispatcher $dispatcher */
-        $dispatcher = $context->getAppContainer()->get(IEventDispatcher::class);
-        // TODO this creates some deprecation warnings!
-        $dispatcher->addListener('OCA\Files::loadAdditionalScripts', function () {
-            Util::addScript('imageconverter', 'imageConverterScript');
-        });
+        $context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalListener::class);
     }
 }

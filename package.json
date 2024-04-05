@@ -1,0 +1,34 @@
+{
+  "name": "imageconverter",
+  "version": "1.0.0",
+  "description": "Just right click your .heif/ .heic image and select \"Convert this image to JPEG\". It converts it to a jpeg file using the same location.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "vite --mode production build",
+    "dev": "vite --mode development build --sourcemap true --minify false",
+    "watch": "vite --mode development build --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/major-mayer/imageconverter.git"
+  },
+  "author": "Major-Mayer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/major-mayer/imageconverter/issues"
+  },
+  "homepage": "https://github.com/major-mayer/imageconverter#readme",
+  "dependencies": {
+    "@mdi/svg": "^7.4.47",
+    "@nextcloud/auth": "^2.2.1",
+    "@nextcloud/dialogs": "^5.2.0",
+    "@nextcloud/event-bus": "^3.1.0",
+    "@nextcloud/files": "^3.1.1",
+    "@nextcloud/router": "^3.0.0"
+  },
+  "devDependencies": {
+    "@nextcloud/vite-config": "^1.2.2",
+    "vite": "^5.2.8"
+  }
+}

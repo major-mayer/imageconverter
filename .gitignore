@@ -1,2 +1,5 @@
 vendor/**
 build/**
+node_modules/**
+js/**
+css/**

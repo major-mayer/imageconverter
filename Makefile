@@ -140,6 +140,7 @@ appstore:
 	--exclude="../$(app_name)/js/tests" \
 	--exclude="../$(app_name)/js/test" \
 	--exclude="../$(app_name)/js/*.log" \
+	--exclude="../$(app_name)/js/*.map" \
 	--exclude="../$(app_name)/js/package.json" \
 	--exclude="../$(app_name)/js/bower.json" \
 	--exclude="../$(app_name)/js/karma.*" \
@@ -150,6 +151,8 @@ appstore:
 	--exclude="../$(app_name)/protractor\.*" \
 	--exclude="../$(app_name)/.*" \
 	--exclude="../$(app_name)/js/.*" \
+	--exclude="../$(app_name)/src" \
+	--exclude="../$(app_name)/node_modules" \
 	../$(app_name)
 
 .PHONY: test

@@ -65,7 +65,7 @@ class ConvertStorage
             /**@var \OCP\Files\Folder $path */
             $newFile = $parentFolder->newFile($newName);
             $result = $newFile->putContent($newContent);
-            return $result;
+            return $newFile->getId();
         } else {
             throw new Exception("Path is not writeable");
         }

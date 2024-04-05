@@ -1,6 +1,3 @@
-# Test
-Place this app in **nextcloud/apps/**
-
 ## Building the app
 
 The app can be built by using the provided Makefile by running:
@@ -38,7 +35,11 @@ Generate the signature by executing:
 ```
 openssl dgst -sha512 -sign ~/Nextcloud/Development/Nextcloud_Cert/imageconverter.key build/artifacts/appstore/imageconverter.tar.gz | openssl base64
 ``` 
-## Running tests
+
+## Test
+Place this app in **nextcloud/apps/**
+
+## Running tests (Not existing)
 You can use the provided Makefile to run all tests by using:
 
     make test
