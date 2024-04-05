@@ -38,4 +38,8 @@ class Application extends App implements IBootstrap
 
         $context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalListener::class);
     }
+
+    public function boot(IBootContext $context): void
+    {
+    }
 }
