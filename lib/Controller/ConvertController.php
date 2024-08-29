@@ -11,16 +11,12 @@ use Psr\Log\LoggerInterface;
 
 class ConvertController extends Controller
 {
-	private $userId;
-	private $config;
 	private $storage;
 	private $logger;
 
-	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, $UserId, IConfig $config, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage)
+	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage)
 	{
 		parent::__construct($AppName, $request);
-		$this->userId = $UserId;
-		$this->config = $config;
 		$this->storage = $ConvertStorage;
 		$this->logger = $logger;
 	}
@@ -37,9 +33,6 @@ class ConvertController extends Controller
 	public function convertImage($filename, $fileId, $compressionQuality = 100)
 	{
 
-		//unused
-		//$completeDir = $this->config->getSystemValue('datadirectory', '').'/'. $this->userId.'/files/';
-
 		// Check if file is .heic or .heif and rename correctly 
 		if (stripos($filename, ".heic") === false) {
 			$newFilename = str_ireplace(".heif", ".jpg", $filename);
@@ -49,7 +42,6 @@ class ConvertController extends Controller
 
 		// Get the content of the original image and the handle for the converted file
 		$originalFileContent = $this->storage->getFileContentById($fileId);
-
 
 		// Do the actual conversion
 		try {
