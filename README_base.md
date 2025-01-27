@@ -33,7 +33,7 @@ The archive is located in build/artifacts/appstore and can then be uploaded to t
 
 Generate the signature by executing:
 ```
-openssl dgst -sha512 -sign ~/Nextcloud/Development/Nextcloud_Cert/imageconverter.key build/artifacts/appstore/imageconverter.tar.gz | openssl base64
+openssl dgst -sha512 -sign ~/Zertifikate/Nextcloud_Cert/imageconverter.key build/artifacts/appstore/imageconverter.tar.gz | openssl base64
 ``` 
 
 ## Test

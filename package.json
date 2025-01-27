@@ -1,6 +1,6 @@
 {
   "name": "imageconverter",
-  "version": "1.0.0",
+  "version": "2.0.5",
   "description": "Just right click your .heif/ .heic image and select \"Convert this image to JPEG\". It converts it to a jpeg file using the same location.",
   "type": "module",
   "private": true,
@@ -22,13 +22,13 @@
   "dependencies": {
     "@mdi/svg": "^7.4.47",
     "@nextcloud/auth": "^2.4.0",
-    "@nextcloud/dialogs": "^5.3.7",
+    "@nextcloud/dialogs": "^6.1.1",
     "@nextcloud/event-bus": "^3.3.1",
-    "@nextcloud/files": "^3.8.0",
+    "@nextcloud/files": "^3.10.1",
     "@nextcloud/router": "^3.0.1"
   },
   "devDependencies": {
-    "@nextcloud/vite-config": "^1.4.2",
-    "vite": "^5.4.2"
+    "@nextcloud/vite-config": "^2.3.1",
+    "vite": "^6.0.11"
   }
 }
