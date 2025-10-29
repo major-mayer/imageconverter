@@ -4,16 +4,16 @@ namespace OCA\ImageConverter\Storage;
 
 use Exception;
 use OCA\WorkflowEngine\Check\FileName;
+use OCP\Files\File;
+use OCP\Files\IRootFolder;
 
 class ConvertStorage
 {
+    private IRootFolder $storage;
 
-    /** @var \OC\Files\Node\Folder */
-    private $storage;
-
-    public function __construct($storage)
+    public function __construct(IRootFolder $rootFolder)
     {
-        $this->storage = $storage;
+        $this->storage = $rootFolder;
     }
 
     /**
@@ -33,9 +33,7 @@ class ConvertStorage
         $file = $files[0];
 
         // return the file content as resource
-        if ($file instanceof \OCP\Files\File) {
-
-            /**@var \OCP\Files\File $file */
+        if ($file instanceof File) {
             $fileContent = $file->fopen("r");
 
             return $fileContent;

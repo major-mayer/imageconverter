@@ -4,15 +4,13 @@ namespace OCA\ImageConverter\AppInfo;
 
 use OCA\Files\Event\LoadAdditionalScriptsEvent;
 use OCA\ImageConverter\Listener\LoadAdditionalListener;
-use OCP\Util;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
-use OCP\EventDispatcher\IEventDispatcher;
-
 use OCA\ImageConverter\Storage\ConvertStorage;
-
+use OCP\Files\IRootFolder;
+use Psr\Container\ContainerInterface;
 
 class Application extends App implements IBootstrap
 {
@@ -26,14 +24,12 @@ class Application extends App implements IBootstrap
 
     public function register(IRegistrationContext $context): void
     {
-        // ... registration logic goes here ...
+        // ... registration logic (DI) goes here ...
 
-        $context->registerService('ConvertStorage', function ($c) {
-            return new ConvertStorage($c->query('RootStorage'));
-        });
-
-        $context->registerService('RootStorage', function ($c) {
-            return $c->query('ServerContainer')->getUserFolder();
+        // Register a ConvertStorage service, which needs an instance of IRootFolder
+        // Reference: https://docs.nextcloud.com/server/latest/developer_manual/basics/dependency_injection.html#predefined-core-services
+        $context->registerService(ConvertStorage::class, function (ContainerInterface $c) {
+            return new ConvertStorage($c->get(IRootFolder::class));
         });
 
         $context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalListener::class);

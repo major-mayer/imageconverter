@@ -6,8 +6,8 @@ use OCP\IRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IConfig;
 use Psr\Log\LoggerInterface;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 
 class ConvertController extends Controller
 {
@@ -28,8 +28,8 @@ class ConvertController extends Controller
 	 * @param int $fileId
 	 * @param integer $compressionQuality
 	 * @return void
-	 * @NoAdminRequired
 	 */
+	#[NoAdminRequired]
 	public function convertImage($filename, $fileId, $compressionQuality = 100)
 	{
 
