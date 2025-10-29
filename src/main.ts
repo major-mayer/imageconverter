@@ -15,7 +15,7 @@ import { showSuccess, showError } from '@nextcloud/dialogs'
 import { getRequestToken } from '@nextcloud/auth'
 import '@nextcloud/dialogs/style.css'
 import { generateUrl } from "@nextcloud/router";
-import imageIcon from "@mdi/svg/svg/image-edit.svg?raw";
+import imageIcon from "@mdi/svg/svg/image-edit-outline.svg?raw";
 
 // example for calling the PUT /notes/1 URL
 const baseUrl = generateUrl('/apps/imageconverter');
