@@ -21,14 +21,14 @@
   "homepage": "https://github.com/major-mayer/imageconverter#readme",
   "dependencies": {
     "@mdi/svg": "^7.4.47",
-    "@nextcloud/auth": "^2.4.0",
-    "@nextcloud/dialogs": "^6.1.1",
-    "@nextcloud/event-bus": "^3.3.1",
-    "@nextcloud/files": "^3.10.1",
+    "@nextcloud/auth": "^2.5.3",
+    "@nextcloud/dialogs": "^6.4.1",
+    "@nextcloud/event-bus": "^3.3.2",
+    "@nextcloud/files": "^3.12.0",
     "@nextcloud/router": "^3.0.1"
   },
   "devDependencies": {
-    "@nextcloud/vite-config": "^2.3.1",
-    "vite": "^6.0.11"
+    "@nextcloud/vite-config": "^2.5.2",
+    "vite": "^7.1.12"
   }
 }
