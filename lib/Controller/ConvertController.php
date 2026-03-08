@@ -25,12 +25,12 @@ class ConvertController extends Controller
 	 * Endpoint to convert the HEIC/HEIF images
 	 *
 	 * @param string $filename
-	 * @param int $fileId
+	 * @param int $id
 	 * @param integer $compressionQuality
 	 * @return void
 	 */
 	#[NoAdminRequired]
-	public function convertImage($filename, $fileId, $compressionQuality = 100)
+	public function convertImage($filename, $id, $compressionQuality = 100)
 	{
 
 		// Check if file is .heic or .heif and rename correctly 
@@ -41,7 +41,7 @@ class ConvertController extends Controller
 		}
 
 		// Get the content of the original image and the handle for the converted file
-		$originalFileContent = $this->storage->getFileContentById($fileId);
+		$originalFileContent = $this->storage->getFileContentById($id);
 
 		// Do the actual conversion
 		try {
@@ -50,14 +50,14 @@ class ConvertController extends Controller
 			$image->setImageFormat("jpeg");
 			$image->setImageCompressionQuality($compressionQuality);
 			$blob =  $image->getImageBlob();
-
-			$this->storage->saveNewImage($fileId, $newFilename, $blob);
 		} catch (\ImagickException $ex) {
 			/**@var \Exception $ex */
 			$this->logger->error("Imagick failed to convert the images: " . $ex->getMessage());
 			return new JSONResponse(["error" => "Imagick failed to convert image " . $filename . ", check if you fulfill all requirements.", "details" => $ex->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
+		// Save the converted image at the same location as the original one
+		$this->storage->saveNewImage($id, $newFilename, $blob);
 
 		return new JSONResponse([
 			"result" => "Image $filename was converted sucessfully!",

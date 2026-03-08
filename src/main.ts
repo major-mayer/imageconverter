@@ -1,14 +1,16 @@
 import {
-    FileAction,
-    Node,
+    ActionContext,
+    ActionContextSingle,
     NodeStatus,
-    View,
-    davGetClient,
-    davGetDefaultPropfind,
-    davResultToNode,
-    davRootPath,
     registerFileAction,
 } from '@nextcloud/files'
+
+import {
+    getClient,
+    getDefaultPropfind,
+    resultToNode,
+    getRootPath
+} from '@nextcloud/files/dav'
 import { emit } from '@nextcloud/event-bus'
 import type { ResponseDataDetailed, FileStat } from "webdav"
 import { showSuccess, showError } from '@nextcloud/dialogs'
@@ -21,11 +23,11 @@ import imageIcon from "@mdi/svg/svg/image-edit-outline.svg?raw";
 const baseUrl = generateUrl('/apps/imageconverter');
 
 // Register file actions for a single image
-registerFileAction(new FileAction({
+registerFileAction({
     id: "convertImage",
     displayName: () => 'Convert to JPEG',
-    enabled: (files, view) => {
-        for (const file of files) {
+    enabled: ({ nodes }) => {
+        for (const file of nodes) {
             if (file.mime !== "image/heic" && file.mime !== "image/heif") {
                 return false
             }
@@ -36,24 +38,26 @@ registerFileAction(new FileAction({
     iconSvgInline: () => {
         return imageIcon;
     },
-    execBatch: startMultiConversion
+    execBatch: startMultiConversion,
 })
-)
 
-async function startSingleConversion(file: Node, view: View, dir: string) {
+async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
+    const file = nodes[0];
     try {
-        // Add a trailing slash to dir
-        if (!dir.endsWith("/")) {
-            dir = dir + "/"
-        }
-
         console.log("Started converting " + file.path);
         file.status = NodeStatus.LOADING;
+
+        // Add a trailing slash to dir
+        let dirname = folder.dirname;
+        if (!dirname.endsWith("/")) {
+            dirname = dirname + "/"
+        }
+
 
         // Prepare everything for request to backend
         let data = {
             filename: file.basename,
-            fileId: file.fileid,
+            id: file.id,
         }
 
         const requestToken = getRequestToken();
@@ -78,8 +82,8 @@ async function startSingleConversion(file: Node, view: View, dir: string) {
         let json = await response.json();
 
         // Emit a files:node:created event for converted image, so they show up in the files app
-        const davClient = davGetClient();
-        const result = await davClient.stat(davRootPath + dir + json.newFilename, { details: true, data: davGetDefaultPropfind() })
+        const davClient = getClient();
+        const result = await davClient.stat(getRootPath() + dirname + json.newFilename, { details: true, data: getDefaultPropfind() })
 
         // FileStat type guard
         function isResponseDataDetailed(result: FileStat | ResponseDataDetailed<FileStat>): result is ResponseDataDetailed<FileStat> {
@@ -87,7 +91,7 @@ async function startSingleConversion(file: Node, view: View, dir: string) {
         }
 
         if (isResponseDataDetailed(result)) {
-            emit("files:node:created", davResultToNode(result.data))
+            emit("files:node:created", resultToNode(result.data))
         }
         else {
             throw Error("Dav result is not detailed (missing the 'props' property");
@@ -111,14 +115,15 @@ async function startSingleConversion(file: Node, view: View, dir: string) {
 }
 
 
-async function startMultiConversion(files: Node[], view: View, dir: string): Promise<(boolean | null)[]> {
-    console.log("Started conversion of multiple files");
+async function startMultiConversion({ nodes: files, folder }: ActionContext): Promise<(boolean | null)[]> {
+    console.log(`Started conversion of multiple ${files.length} files`);
 
     let executionError = false;
 
     // Add a trailing slash to dir
-    if (!dir.endsWith("/")) {
-        dir = dir + "/"
+    let dirname = folder.dirname;
+    if (!dirname.endsWith("/")) {
+        dirname = dirname + "/"
     }
 
     // Check for wrong mimetype
@@ -143,7 +148,7 @@ async function startMultiConversion(files: Node[], view: View, dir: string): Pro
             // Prepare everything for request to backend
             let data = {
                 filename: file.basename,
-                fileId: file.fileid,
+                id: file.id,
             }
 
             const requestToken = getRequestToken();
@@ -185,11 +190,11 @@ async function startMultiConversion(files: Node[], view: View, dir: string): Pro
             const json = await response.json();
 
             // Emit a files:node:created event for all converted images, so they show up in the files app
-            const davClient = davGetClient();
-            const result = await davClient.stat(davRootPath + dir + json.newFilename, { details: true, data: davGetDefaultPropfind() })
+            const davClient = getClient();
+            const result = await davClient.stat(getRootPath() + dirname + json.newFilename, { details: true, data: getDefaultPropfind() })
 
             if (isResponseDataDetailed(result)) {
-                emit("files:node:created", davResultToNode(result.data))
+                emit("files:node:created", resultToNode(result.data))
                 return true
             }
             else {
