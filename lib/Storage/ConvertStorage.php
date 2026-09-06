@@ -20,9 +20,10 @@ class ConvertStorage
      * Returns the content of a file by it's id
      *
      * @param int $id
-     * @return resource
+     * @return File
+     * @throws Exception
      */
-    public function getFileContentById($id)
+    public function getFileById($id): File
     {
         $files = $this->storage->getById($id);
 
@@ -34,9 +35,7 @@ class ConvertStorage
 
         // return the file content as resource
         if ($file instanceof File) {
-            $fileContent = $file->fopen("r");
-
-            return $fileContent;
+            return $file;
         } else {
             throw new Exception('Can not read from folder');
         }
@@ -45,24 +44,25 @@ class ConvertStorage
     /**
      * Returns the handle for a new file that shall be created at the same location as the old one
      *
-     * @param int $originalImageid
+     * @param File $originalFile
      * @param string $newName
      * @param string $newContent
-     * @return resource
+     * @return File
+     * @throws Exception
      */
-    public function saveNewImage($originalImageid, $newName, $newContent)
+    public function saveNewImage(File $originalFile, string $newName, string $newContent)
     {
         if (empty($newContent)) {
             throw new Exception("Could not save the new converted image, because the content is empty. Something went wrong with the conversion before!");
         }
 
-        $parentFolder = $this->storage->getById($originalImageid)[0]->getParent();
+        $parentFolder = $originalFile->getParent();
 
         //Check if the path is writeable and a folder
         if ($parentFolder->isCreatable() && $parentFolder instanceof \OCP\Files\Folder) {
             /**@var \OCP\Files\Folder $path */
             $newFile = $parentFolder->newFile($newName);
-            $result = $newFile->putContent($newContent);
+            $newFile->putContent($newContent);
             return $newFile->getId();
         } else {
             throw new Exception("Path is not writeable");

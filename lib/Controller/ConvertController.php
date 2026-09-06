@@ -8,13 +8,14 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use Psr\Log\LoggerInterface;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCA\ImageConverter\Storage\ConvertStorage;
 
 class ConvertController extends Controller
 {
-	private $storage;
+	private ConvertStorage $storage;
 	private $logger;
 
-	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, \OCA\ImageConverter\Storage\ConvertStorage $ConvertStorage)
+	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, ConvertStorage $ConvertStorage)
 	{
 		parent::__construct($AppName, $request);
 		$this->storage = $ConvertStorage;
@@ -41,7 +42,8 @@ class ConvertController extends Controller
 		}
 
 		// Get the content of the original image and the handle for the converted file
-		$originalFileContent = $this->storage->getFileContentById($id);
+		$originalFile = $this->storage->getFileById($id);
+		$originalFileContent = $originalFile->fopen("r");
 
 		// Do the actual conversion
 		try {
@@ -57,7 +59,7 @@ class ConvertController extends Controller
 		}
 
 		// Save the converted image at the same location as the original one
-		$this->storage->saveNewImage($id, $newFilename, $blob);
+		$this->storage->saveNewImage($originalFile, $newFilename, $blob);
 
 		return new JSONResponse([
 			"result" => "Image $filename was converted sucessfully!",
