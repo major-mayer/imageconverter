@@ -24,13 +24,13 @@
     "@nextcloud/auth": "^2.6.0",
     "@nextcloud/dialogs": "^7.5.0",
     "@nextcloud/event-bus": "^3.3.3",
-    "@nextcloud/files": "^4.0.0",
-    "@nextcloud/router": "^3.1.0"
+    "@nextcloud/files": "^4.1.1",
+    "@nextcloud/router": "^3.2.0"
   },
   "devDependencies": {
     "@nextcloud/vite-config": "^2.5.4",
     "typescript": "^6.0.3",
-    "vite": "^7.3.6"
+    "vite": "^7.3.7"
   },
   "allowScripts": {
     "@parcel/watcher@2.6.0": true,
