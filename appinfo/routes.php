@@ -9,6 +9,7 @@
  */
 return [
     'routes' => [
-       ['name' => 'convert#convertImage', 'url' => '/convert', 'verb' => 'POST'],
+         ['name' => 'convert#formats', 'url' => '/formats', 'verb' => 'GET'],
+        ['name' => 'convert#convertImage', 'url' => '/convert', 'verb' => 'POST'],
     ]
 ];

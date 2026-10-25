@@ -12,10 +12,15 @@ use OCA\ImageConverter\Storage\ConvertStorage;
 
 class ConvertController extends Controller
 {
-	private ConvertStorage $storage;
-	private $logger;
+	private static array $supportedFormats = ["JPEG", "PNG", "WEBP", "AVIF", "JXL", "BMP"];
 
-	public function __construct(LoggerInterface $logger, $AppName, IRequest $request, ConvertStorage $ConvertStorage)
+	private ConvertStorage $storage;
+	private LoggerInterface $logger;
+
+	/**
+	 * @param string $AppName The application name.
+	 */
+	public function __construct(LoggerInterface $logger, string $AppName, IRequest $request, ConvertStorage $ConvertStorage)
 	{
 		parent::__construct($AppName, $request);
 		$this->storage = $ConvertStorage;
@@ -23,23 +28,61 @@ class ConvertController extends Controller
 	}
 
 	/**
-	 * Endpoint to convert the HEIC/HEIF images
+	 * Return the supported output formats available in the current Imagick installation.
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function formats(): JSONResponse
+	{
+		try {
+			return new JSONResponse([
+				"formats" => $this->getSupportedFormats()
+			]);
+		} catch (\ImagickException $ex) {
+			$this->logger->error("Imagick failed to query supported image formats.", ["exception" => $ex]);
+			return new JSONResponse(["error" => "Unable to query supported image formats."], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Convert an image to a format supported by Imagick.
 	 *
 	 * @param string $filename
 	 * @param int $id
+	 * @param string $targetFormat
 	 * @param integer $compressionQuality
-	 * @return void
+	 * @return JSONResponse
 	 */
 	#[NoAdminRequired]
-	public function convertImage($filename, $id, $compressionQuality = 100)
+	public function convertImage(string $filename, int $id, string $targetFormat = "jpeg", int $compressionQuality = 100): JSONResponse
 	{
-
-		// Check if file is .heic or .heif and rename correctly 
-		if (stripos($filename, ".heic") === false) {
-			$newFilename = str_ireplace(".heif", ".jpg", $filename);
-		} else {
-			$newFilename = str_ireplace(".heic", ".jpg", $filename);
+		// Check if format is supported
+		$targetFormat = strtoupper($targetFormat);
+		try {
+			$supportedFormats = $this->getSupportedFormats();
+		} catch (\ImagickException $ex) {
+			$this->logger->error("Imagick failed to query supported image formats for conversion.", [
+				"filename" => $filename,
+				"exception" => $ex
+			]);
+			return new JSONResponse(["error" => "Unable to query supported image formats."], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+
+		if (!in_array($targetFormat, $supportedFormats, true)) {
+			$this->logger->warning("Rejected unsupported image conversion format.", [
+				"filename" => $filename,
+				"targetFormat" => $targetFormat
+			]);
+			return new JSONResponse([
+				"error" => "Unsupported target format.",
+				"formats" => $supportedFormats
+			], Http::STATUS_BAD_REQUEST);
+		}
+
+
+		$extension = strtolower($targetFormat);
+		$newFilename = pathinfo($filename, PATHINFO_FILENAME) . "." . $extension;
 
 		// Get the content of the original image and the handle for the converted file
 		$originalFile = $this->storage->getFileById($id);
@@ -49,12 +92,16 @@ class ConvertController extends Controller
 		try {
 			$image = new \Imagick();
 			$image->readImageFile($originalFileContent);
-			$image->setImageFormat("jpeg");
+			$image->setImageFormat($targetFormat);
 			$image->setImageCompressionQuality($compressionQuality);
 			$blob =  $image->getImageBlob();
 		} catch (\ImagickException $ex) {
 			/**@var \Exception $ex */
-			$this->logger->error("Imagick failed to convert the images: " . $ex->getMessage());
+			$this->logger->error("Imagick failed to convert the image.", [
+				"filename" => $filename,
+				"targetFormat" => $targetFormat,
+				"exception" => $ex
+			]);
 			return new JSONResponse(["error" => "Imagick failed to convert image " . $filename . ", check if you fulfill all requirements.", "details" => $ex->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
@@ -65,5 +112,13 @@ class ConvertController extends Controller
 			"result" => "Image $filename was converted sucessfully!",
 			"newFilename" => $newFilename
 		]);
+	}
+
+
+	// Utilities
+
+	private function getSupportedFormats(): array
+	{
+		return array_values(array_intersect(self::$supportedFormats, \Imagick::queryFormats()));
 	}
 }
