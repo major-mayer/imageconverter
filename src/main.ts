@@ -17,32 +17,59 @@ import { showSuccess, showError } from '@nextcloud/dialogs'
 import { getRequestToken } from '@nextcloud/auth'
 import '@nextcloud/dialogs/style.css'
 import { generateUrl } from "@nextcloud/router";
+import { spawnDialog } from '@nextcloud/vue/functions/dialog'
+import ConversionOptionsDialog from './ConversionOptionsDialog.vue'
+import type { ConversionOptions } from './types'
 import imageIcon from "@mdi/svg/svg/image-edit-outline.svg?raw";
 
-// example for calling the PUT /notes/1 URL
+// Base URL for all requests to the backend
 const baseUrl = generateUrl('/apps/imageconverter');
 
-// Register file actions for a single image
-registerFileAction({
-    id: "convertImage",
-    displayName: () => 'Convert to JPEG',
-    enabled: ({ nodes }) => {
-        for (const file of nodes) {
-            if (file.mime !== "image/heic" && file.mime !== "image/heif") {
-                return false
-            }
+// Main entry point: File action is registered here based on what image types Imagick supports
+async function registerConversionAction(): Promise<void> {
+    try {
+        const requestToken = getRequestToken()
+        if (!requestToken) {
+            throw Error('Unable to get a request token!')
         }
-        return true;
-    },
-    exec: startSingleConversion,
-    iconSvgInline: () => {
-        return imageIcon;
-    },
-    execBatch: startMultiConversion,
-})
+
+        const response = await fetch(baseUrl + '/mimetypes', {
+            headers: { requesttoken: requestToken },
+        })
+        if (!response.ok) {
+            throw Error('Unable to retrieve supported input MIME types.')
+        }
+
+        const result = await response.json() as { mimeTypes: string[] }
+        if (!Array.isArray(result.mimeTypes) || result.mimeTypes.length === 0) {
+            throw Error('No supported input MIME types are available.')
+        }
+
+        const supportedMimeTypes = new Set(result.mimeTypes)
+        registerFileAction({
+            id: "convertImage",
+            displayName: () => 'Convert image',
+            enabled: ({ nodes }) =>
+                nodes.every(file => { console.log("SOOOS", file.mime); return supportedMimeTypes.has(file.mime) }),
+            exec: startSingleConversion,
+            iconSvgInline: () => imageIcon,
+            execBatch: startMultiConversion,
+        })
+    } catch (ex) {
+        console.error('ImageConverter: Could not register conversion action:', ex)
+    }
+}
+
+void registerConversionAction()
+
 
 async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
     const file = nodes[0];
+    const options = await requestConversionOptions(file.basename, true)
+    if (!options) {
+        return false
+    }
+
     try {
         console.log("Started converting " + file.path);
         file.status = NodeStatus.LOADING;
@@ -56,8 +83,10 @@ async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
 
         // Prepare everything for request to backend
         let data = {
-            filename: file.basename,
+            filename: `${options.filename}.${getExtension(options.format)}`,
             id: file.id,
+            targetFormat: options.format,
+            compressionQuality: options.quality,
         }
 
         const requestToken = getRequestToken();
@@ -118,6 +147,11 @@ async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
 async function startMultiConversion({ nodes: files, folder }: ActionContext): Promise<(boolean | null)[]> {
     console.log(`Started conversion of multiple ${files.length} files`);
 
+    const options = await requestConversionOptions(files[0].basename, false)
+    if (!options) {
+        return files.map(() => false)
+    }
+
     let executionError = false;
 
     // Add a trailing slash to dir
@@ -126,10 +160,10 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
         dirname = dirname + "/"
     }
 
-    // Check for wrong mimetype
+    // Check for unsupported MIME types
     const returnArray = files.map(file => {
-        if (!(file.mime == "image/heic" || file.mime == "image/heif")) {
-            showError("Selection contains at least one image that is not in the HEIC or HEIF format", { timeout: -1 })
+        if (!file.mime.startsWith("image/")) {
+            showError("Selection contains a file that is not an image", { timeout: -1 })
             executionError = true;
             return false;
         }
@@ -147,8 +181,10 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
         for (let file of files) {
             // Prepare everything for request to backend
             let data = {
-                filename: file.basename,
+                filename: `${getBasename(file.basename)}.${getExtension(options.format)}`,
                 id: file.id,
+                targetFormat: options.format,
+                compressionQuality: options.quality,
             }
 
             const requestToken = getRequestToken();
@@ -218,4 +254,53 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
         return returnArray;
     }
 
+}
+
+
+// Dialog loading 
+function getExtension(format: string): string {
+    return format.toLowerCase()
+}
+
+function getBasename(filename: string): string {
+    const extensionIndex = filename.lastIndexOf('.')
+    // If no extension was found, returns the filename as whole 
+    return extensionIndex > 0 ? filename.slice(0, extensionIndex) : filename
+}
+
+async function requestConversionOptions(filename: string, allowFilename: boolean): Promise<ConversionOptions | null> {
+    try {
+        const requestToken = getRequestToken()
+        if (!requestToken) {
+            throw Error('Unable to get a request token!')
+        }
+
+        const response = await fetch(baseUrl + '/formats', {
+            headers: { requesttoken: requestToken },
+        })
+        if (!response.ok) {
+            throw Error('Unable to retrieve supported output formats.')
+        }
+
+        const result = await response.json() as { formats: string[] }
+        if (!Array.isArray(result.formats) || result.formats.length === 0) {
+            throw Error('No supported output formats are available.')
+        }
+
+        // Spawn dialog for conversion option selection
+        const selection = await spawnDialog(ConversionOptionsDialog, {
+            formats: result.formats,
+            initialBasename: getBasename(filename),
+            allowFilename,
+        }) as unknown as ConversionOptions | undefined
+
+        if (!selection || !selection.format || (allowFilename && !selection.filename)) {
+            return null
+        }
+        return selection
+    } catch (ex) {
+        showError('Unable to open image conversion options.', { timeout: -1 })
+        console.error('ImageConverter: Could not load conversion options:', ex)
+        return null
+    }
 }

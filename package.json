@@ -25,7 +25,8 @@
     "@nextcloud/dialogs": "^7.5.0",
     "@nextcloud/event-bus": "^3.3.3",
     "@nextcloud/files": "^4.1.1",
-    "@nextcloud/router": "^3.2.0"
+    "@nextcloud/router": "^3.2.0",
+    "@nextcloud/vue": "^9.14.0"
   },
   "devDependencies": {
     "@nextcloud/vite-config": "^2.5.4",
@@ -34,8 +35,8 @@
   },
   "allowScripts": {
     "@parcel/watcher@2.6.0": true,
-    "core-js@3.50.0": true,
     "esbuild@0.25.12": true,
-    "esbuild@0.28.2": true
+    "esbuild@0.28.2": true,
+    "core-js@3.51.0": true
   }
 }

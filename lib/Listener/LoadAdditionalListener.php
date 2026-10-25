@@ -19,5 +19,6 @@ class LoadAdditionalListener implements IEventListener
 
         // Load the imageConverterScript after the 'files' app has loaded
         Util::addScript(Application::APP_ID, 'imageconverter-main', "files");
+        Util::addStyle(Application::APP_ID, 'imageconverter-main');
     }
 }
