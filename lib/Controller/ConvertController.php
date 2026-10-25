@@ -12,7 +12,7 @@ use OCA\ImageConverter\Storage\ConvertStorage;
 
 class ConvertController extends Controller
 {
-	private static array $supportedFormats = ["JPEG", "PNG", "WEBP", "AVIF", "JXL", "BMP"];
+	private static array $supportedFormats = ["JPEG", "PNG", "WEBP", "AVIF", "JXL", "HEIC"];
 
 	private ConvertStorage $storage;
 	private LoggerInterface $logger;
@@ -46,6 +46,24 @@ class ConvertController extends Controller
 	}
 
 	/**
+	 * Return image MIME types recognized by the current Imagick installation.
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function mimeTypes(): JSONResponse
+	{
+		try {
+			return new JSONResponse([
+				"mimeTypes" => $this->getSupportedMimeTypes()
+			]);
+		} catch (\ImagickException $ex) {
+			$this->logger->error("Imagick failed to query supported image MIME types.", ["exception" => $ex]);
+			return new JSONResponse(["error" => "Unable to query supported image MIME types."], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Convert an image to a format supported by Imagick.
 	 *
 	 * @param string $filename
@@ -55,7 +73,7 @@ class ConvertController extends Controller
 	 * @return JSONResponse
 	 */
 	#[NoAdminRequired]
-	public function convertImage(string $filename, int $id, string $targetFormat = "jpeg", int $compressionQuality = 100): JSONResponse
+	public function convertImage(string $filename, int $id, string $targetFormat = "jpeg", int $compressionQuality = 90): JSONResponse
 	{
 		// Check if format is supported
 		$targetFormat = strtoupper($targetFormat);
@@ -106,10 +124,20 @@ class ConvertController extends Controller
 		}
 
 		// Save the converted image at the same location as the original one
-		$this->storage->saveNewImage($originalFile, $newFilename, $blob);
+		try {
+			$this->storage->saveNewImage($originalFile, $newFilename, $blob);
+		} catch (\OCP\Lock\LockedException $ex) {
+			$this->logger->warning("Converted image could not be saved because the destination is locked.", [
+				"filename" => $newFilename,
+				"exception" => $ex
+			]);
+			return new JSONResponse([
+				"error" => "The destination image is locked. Use a different file name or close any operation using the file and try again."
+			], Http::STATUS_CONFLICT);
+		}
 
 		return new JSONResponse([
-			"result" => "Image $filename was converted sucessfully!",
+			"result" => "Image $filename was converted sucessfully to $targetFormat!",
 			"newFilename" => $newFilename
 		]);
 	}
@@ -120,5 +148,34 @@ class ConvertController extends Controller
 	private function getSupportedFormats(): array
 	{
 		return array_values(array_intersect(self::$supportedFormats, \Imagick::queryFormats()));
+	}
+
+	private function getSupportedMimeTypes(): array
+	{
+		$image = new \Imagick();
+		$image->newImage(1, 1, new \ImagickPixel("white"));
+		$mimeTypes = [];
+
+		foreach (\Imagick::queryFormats() as $format) {
+			try {
+				$image->setImageFormat($format);
+				$mimeType = $image->getImageMimeType();
+				if (str_starts_with($mimeType, "image/")) {
+					$mimeTypes[] = $mimeType;
+					// Imagick uses a lot of non-standard MIME types like image/x-jxl or image/x-heif
+					// To support also the standard mime types, we strip the x- prefix and add them to the list
+					if (str_starts_with($mimeType, "image/x-")) {
+						$mimeTypes[] = "image/" . substr($mimeType, 8);
+					}
+				}
+			} catch (\ImagickException) {
+				continue;
+			}
+		}
+
+		$image->clear();
+		$mimeTypes = array_values(array_unique($mimeTypes));
+		sort($mimeTypes);
+		return $mimeTypes;
 	}
 }

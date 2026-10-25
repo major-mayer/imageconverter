@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Create your routes in here. The name is the lowercase name of the controller
  * without the controller part, the stuff after the hash is the method.
@@ -9,7 +10,8 @@
  */
 return [
     'routes' => [
-         ['name' => 'convert#formats', 'url' => '/formats', 'verb' => 'GET'],
+        ['name' => 'convert#formats', 'url' => '/formats', 'verb' => 'GET'],
+        ['name' => 'convert#mimeTypes', 'url' => '/mimetypes', 'verb' => 'GET'],
         ['name' => 'convert#convertImage', 'url' => '/convert', 'verb' => 'POST'],
     ]
 ];
