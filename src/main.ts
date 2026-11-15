@@ -50,7 +50,7 @@ async function registerConversionAction(): Promise<void> {
             id: "convertImage",
             displayName: () => 'Convert image',
             enabled: ({ nodes }) =>
-                nodes.every(file => { console.log("SOOOS", file.mime); return supportedMimeTypes.has(file.mime) }),
+                nodes.every(file => supportedMimeTypes.has(file.mime)),
             exec: startSingleConversion,
             iconSvgInline: () => imageIcon,
             execBatch: startMultiConversion,
@@ -73,13 +73,6 @@ async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
     try {
         console.log("Started converting " + file.path);
         file.status = NodeStatus.LOADING;
-
-        // Add a trailing slash to dir
-        let dirname = folder.dirname;
-        if (!dirname.endsWith("/")) {
-            dirname = dirname + "/"
-        }
-
 
         // Prepare everything for request to backend
         let data = {
@@ -112,7 +105,7 @@ async function startSingleConversion({ nodes, folder }: ActionContextSingle) {
 
         // Emit a files:node:created event for converted image, so they show up in the files app
         const davClient = getClient();
-        const result = await davClient.stat(getRootPath() + dirname + json.newFilename, { details: true, data: getDefaultPropfind() })
+        const result = await davClient.stat(getConvertedFilePath(file.path, json.newFilename), { details: true, data: getDefaultPropfind() })
 
         // FileStat type guard
         function isResponseDataDetailed(result: FileStat | ResponseDataDetailed<FileStat>): result is ResponseDataDetailed<FileStat> {
@@ -153,12 +146,6 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
     }
 
     let executionError = false;
-
-    // Add a trailing slash to dir
-    let dirname = folder.dirname;
-    if (!dirname.endsWith("/")) {
-        dirname = dirname + "/"
-    }
 
     // Check for unsupported MIME types
     const returnArray = files.map(file => {
@@ -214,7 +201,9 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
             return (result as ResponseDataDetailed<FileStat>).status !== undefined;
         }
 
-        const returnPromises = responses.map(async (response) => {
+        const returnPromises = files.map(async (file, index) => {
+            const response = responses[index]
+
             // Check if a statuscode of one of the responses is incorrect 
             if (!response.ok) {
                 const backendError = await response.text();
@@ -227,7 +216,7 @@ async function startMultiConversion({ nodes: files, folder }: ActionContext): Pr
 
             // Emit a files:node:created event for all converted images, so they show up in the files app
             const davClient = getClient();
-            const result = await davClient.stat(getRootPath() + dirname + json.newFilename, { details: true, data: getDefaultPropfind() })
+            const result = await davClient.stat(getConvertedFilePath(file.path, json.newFilename), { details: true, data: getDefaultPropfind() })
 
             if (isResponseDataDetailed(result)) {
                 emit("files:node:created", resultToNode(result.data))
@@ -266,6 +255,27 @@ function getBasename(filename: string): string {
     const extensionIndex = filename.lastIndexOf('.')
     // If no extension was found, returns the filename as whole 
     return extensionIndex > 0 ? filename.slice(0, extensionIndex) : filename
+}
+
+// 
+function getConvertedFilePath(filePath: string, newFilename: string): string {
+    let absolutePath = filePath
+
+
+    if (!absolutePath.startsWith(getRootPath())) {
+        // Prepend the root slash
+        if (!absolutePath.startsWith('/')) {
+            absolutePath = `/${absolutePath}`
+        }
+        // Prepend the current user's root path
+        absolutePath = `${getRootPath()}${absolutePath}`
+    }
+
+    // Get the parent path by slicing to the last slash
+    const lastSlash = absolutePath.lastIndexOf('/')
+    const parentPath = lastSlash > 0 ? absolutePath.slice(0, lastSlash + 1) : `${getRootPath()}/`
+
+    return `${parentPath}${newFilename}`
 }
 
 async function requestConversionOptions(filename: string, allowFilename: boolean): Promise<ConversionOptions | null> {
