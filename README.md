@@ -1,15 +1,21 @@
 # Usage
-Just right click your .heif/ .heic image and select "Convert this image to JPEG". It converts it to a jpeg file using the same location.
+Right-click an image in Nextcloud and choose the conversion action. The app creates a converted file in the same folder using the format supported by your ImageMagick installation.
+
+# Features
+- Convert HEIC/HEIF images and other image formats using ImageMagick.
+- Convert images to JPEG, PNG, WEBP, AVIF, JXL, and HEIC when those formats are supported by the installed build.
+- Works directly from the Nextcloud file context menu.
+- The exact supported formats depend on the available ImageMagick codecs and PHP Imagick support.
 
 # Requirements
-Needs the PHP [Imagick](https://github.com/Imagick/imagick) extension to be installed on your host compiled with support for the HEIC/ HEIF format. Check if your PHP installation supports the HEIC format by entering "php -i" in the terminal and go to the Imagick section.
+This app requires the PHP [Imagick](https://github.com/Imagick/imagick) extension to be installed on the server, with image format support enabled in the underlying ImageMagick build.
 
-[Here](https://medium.com/@eplt/5-minutes-to-install-imagemagick-with-heic-support-on-ubuntu-18-04-digitalocean-fe2d09dcef1) you can find a good tutorial about how to compile Imagemagick with HEIC support and install the PHP extension.
+To check whether your PHP installation supports a given format, run "php -i" in the terminal and look for the Imagick section.
 
-The official [Docker Nextcloud image](https://github.com/nextcloud/docker) already includes the Imagick extension with support for the HEIC format.
+[This tutorial](https://medium.com/@eplt/5-minutes-to-install-imagemagick-with-heic-support-on-ubuntu-18-04-digitalocean-fe2d09dcef1) is a good reference for compiling ImageMagick with HEIC support and installing the PHP extension.
 
-# ToDos
+The official [Docker Nextcloud image](https://github.com/nextcloud/docker) already includes the Imagick extension with HEIC support.
+
+# ToDo
 - Testing
-- Option to choose JPEG quality
-- Option to convert to other formats than JPEG
 - ...
