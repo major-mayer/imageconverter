@@ -18,4 +18,5 @@ The official [Docker Nextcloud image](https://github.com/nextcloud/docker) alrea
 
 # ToDo
 - Testing
+- Preserving EXIF data
 - ...
