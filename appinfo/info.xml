@@ -18,14 +18,14 @@ Convert images to other formats with the power of ImageMagick and the PHP Imagic
 > Requires ImageMagick with support for your desired formats and the PHP Imagick extension enabled. 
 Check the GitHub project for setup details and compatibility notes.
 ]]></description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <licence>agpl</licence>
     <author mail="major-mayer@t-online.de" homepage="http://example.com">major-mayer</author>
     <namespace>ImageConverter</namespace>
     <category>multimedia</category>
     <bugs>https://github.com/major-mayer/imageConverter/issues</bugs>
     <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenshot.jpg</screenshot>
-    <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenrecording.webm</screenshot>
+    <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenrecording.webp</screenshot>
     <dependencies>
         <lib>imagick</lib>
         <nextcloud min-version="35" max-version="35" />
