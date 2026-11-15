@@ -2,12 +2,22 @@
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>imageconverter</id>
     <name>HEIC/HEIF Image Converter</name>
-    <summary>Converts your HEIC/ HEIF images to JPEG </summary>
-    <description>
-        <![CDATA[Very simple app to convert your HEIC/ HEIF files to JPEG using ImagickMagick and the PHP Imagick extension. 
-        Needs imagemagick with HEIC support installed and the PHP bindings (Imagick extension) enabled.
-        Check Github for more details.]]>
-    </description>
+    <summary>Converts your images to different formats</summary>
+    <description><![CDATA[
+# HEIC/HEIF Image Converter
+
+Convert images to other formats with the power of ImageMagick and the PHP Imagick extension.
+
+## ✨ Features
+
+- **📦 Flexible conversion**: Convert your photos and images to common formats such as JPEG, PNG, WEBP, AVIF, JXL, and HEIC.
+- **⚙️ ImageMagick-based**: Uses the installed ImageMagick engine and PHP Imagick bindings for reliable processing.
+- **🧩 Compatibility-aware**: Supported formats depend on the version and features of your ImageMagick installation.
+
+## Notes
+> Requires ImageMagick with support for your desired formats and the PHP Imagick extension enabled. 
+Check the GitHub project for setup details and compatibility notes.
+]]></description>
     <version>3.0.0</version>
     <licence>agpl</licence>
     <author mail="major-mayer@t-online.de" homepage="http://example.com">major-mayer</author>
@@ -15,7 +25,7 @@
     <category>multimedia</category>
     <bugs>https://github.com/major-mayer/imageConverter/issues</bugs>
     <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenshot.jpg</screenshot>
-    <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenrecord.gif</screenshot>
+    <screenshot>https://raw.githubusercontent.com/major-mayer/imageConverter/master/screenshots/screenrecording.webm</screenshot>
     <dependencies>
         <lib>imagick</lib>
         <nextcloud min-version="35" max-version="35" />
